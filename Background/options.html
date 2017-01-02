@@ -1,0 +1,118 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+<title>Lv1小站支援套件設定區</title>
+<style>
+<!--body: { padding: 500px; }-->
+.unselectable {
+	color: white;
+	
+    user-select: none;
+	-o-user-select: none;
+	pointer-events: none;
+	-ms-user-select: none;
+	-moz-user-select: none;
+    -khtml-user-select: none;
+    -webkit-user-select: none;
+	-webkit-touch-callout: none;
+    -moz-user-select: -moz-none;
+}
+</style>
+	<link rel="stylesheet" type="text/css" href="../main/jquery-ui-1.11.4.custom/jquery-ui.css" media="all">
+	<link rel="stylesheet" type="text/css" href="../main/jquery-ui-1.11.4.custom/jquery-ui.structure.css" media="all">
+	<link rel="stylesheet" type="text/css" href="../main/jquery-ui-1.11.4.custom/jquery-ui.theme.css" media="all">
+	
+	<script src="../main/jquery.min.js"></script>
+	<script src="../main/jquery-ui-1.11.4.custom/jquery-ui.min.js"></script>
+</head>
+
+<body>
+<div style="width:500px">
+<a style="display:none;" class="unselectable">testtesttesttesttesttesttesttesttesttesttesttesttesttesttesttesttesttesttesttesttesttesttesttesttesttest</a>
+<b>右邊頁框轉向至 </b>
+  <select id="frameSel">
+   <option value="lib/index.php?fid=2">貼圖版</option>
+   <option value="lib/index3.php?uid=" style="color:blue;">個人版</option>
+   <option value="lib/index.php?fid=5">P2P版</option>
+   <option value="lib/index.php?fid=6">創作版</option>
+   <option value="lib/index.php?fid=3">站務版</option>
+   <option value="lib/index.php?fid=8">HGAME版</option>
+   <option value="lib/index.php?fid=1">聊天版</option>
+   <option value="lib/index.php?fid=4">連署版</option>
+   <option value="lib/index.php?fid=7">軟件版</option>
+   <option value="lib/index.php?fid=2&Custom=true" style="color:red;">自訂網址</option>
+  </select>
+  <label>
+    <b style="color:black" title="可不需手動設定，登入後自動更改">個人版UID：</b><input type="text" style="text-align:center;" id="frameSelUID" size="7">
+  </label>
+	<div id="frameCustomURLdiv" style="display:none;">
+		<b>自訂右邊框轉址 </b><input type="text" id="frameCustomURL" size="50">
+	</div>
+	<br>
+	<b>聊天室訊息間隔 </b><input type="text" style="text-align:right;" id="ChatInterVal" size="2">分鐘 (最小 1分鐘，設定為0關閉檢查)
+	<br>
+	<b>短訊息檢查間隔 </b><input type="text" style="text-align:right;" id="MessInterVal" size="2">分鐘 (最小15分鐘，建議60以上，可設定為0關閉)
+	<br>
+	<b>聊天室暱稱設定 </b><input type="text" id="CboxID" size="50">
+	<br>
+	<b>聊天室網址設定 </b><input type="text" id="CboxURL" size="50">
+	<a id="CboxURLGo" href="#"><div style="display:inline;"><img src="../res/Link.png" valign="middle" height="24" width="24"></div></a>
+	<br>
+	<b>縮圖比例最大值 </b>
+	寬(800)：<input type="text" style="text-align:center;" id="MAXwidth" size="5">、
+	高(700)：<input type="text" style="text-align:center;" id="MAXHeight" size="5">
+	<br>
+	<b>聊天小視窗大小 </b>
+	寬(550)：<input type="text" style="text-align:center;" id="Popup2Width" size="5">、
+	高(570)：<input type="text" style="text-align:center;" id="Popup2Height" size="5">
+	<br>
+	<b>編輯器字體大小 </b><input type="text" id="TextAreaFontSize" style="text-align:center;" size="2"> 
+	發帖、短訊等編輯器
+		<a href="http://goo.gl/U5hsui" target="_blenk" class="tooltip" title="瀏覽最小字體設定<br>可搭配CTRL+滾輪設定瀏覽器縮放">字體大小</a>，預設：12，建議：15
+	<br>
+	<b>更改主題列圖示 </b><input type="checkbox" id="IndexIcon">
+	<br>
+	<b>隱藏公告區版面 </b><input type="checkbox" id="Announcement">
+	<br>
+	<b>圖片載入計數器 </b><input type="checkbox" id="IMGLoaderCount">
+	<br>
+	<b>全自動載入圖片 </b><input type="checkbox" id="IMGLoaderAuto">
+	<br>
+	<b>全自動載入媒體 </b><input type="checkbox" id="VideoLoadAuto">
+	<br>
+	<b>開啟主題新頁面 </b><input type="checkbox" id="IndexNewBlank">
+	<br>
+	<b>聊天室通知音效 </b><input type="checkbox" id="ChatAlertSound">  <a id="ChatAlertPlay">播放音效</a>
+	<br>
+	<b>小站新訊息音效 </b><input type="checkbox" id="Lv1AlertSound">  <a id="Lv1AlertPlay">播放音效</a>
+	<br>
+	<b>聊天室通知視窗 </b><input type="checkbox" id="ChatAlertBox">  <a id="ChatAlertBoxPlay">測試視窗</a>
+	<br>
+	<b>小站新訊息視窗 </b><input type="checkbox" id="Lv1AlertBox">  <a id="Lv1AlertBoxPlay">測試視窗</a>
+	<br>
+	<b>閒置訊息不檢查 </b><input type="checkbox" id="IdleNoMessage">
+	<br>
+	<b>自動推文新文章 </b><input type="checkbox" id="AutoLikePost">
+	<br>
+	<b>啟用外部快速鍵 </b><input type="checkbox" id="OutSideCommands"> 
+		<a id="CommandsSet">變更按鍵</a>，預設值：
+			<a class="tooltip" title="<font color='red'>Alt </font>+Shift+Home">開新頁面</a>、
+			<a class="tooltip" title="<font color='blue'>Ctrl</font>+Shift+Home">當前頁面</a>、
+			<a class="tooltip" title="<font color='blue'>Ctrl</font>+Shift+End">聊天視窗</a>
+	<br>
+	<b>聊天通知新視窗 </b><input type="checkbox" id="CboxNewWindow"> 點擊聊天通知會開啟聊天小視窗
+	<div id="status"></div>
+<a>------------------------------------------------------------------------------------------------</a>
+	<br>
+	<b>以下不列入雲端同步設定，不更改請留空</b>
+	<br>
+	<b>自動登入用<font color="red">帳號</font> </b><input type="text" id="LoginName" size="20"> <a id="LoginStatus"></a>
+	<br>
+	<b>自動登入用<font color="red">密碼</font> </b><input type="password" id="LoginPass" size="20"> <button id="LoginCancel">取消登入</button>
+	<br><br>
+	<div id="status2"></div>
+	&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<button id="save" style="color:green;">儲存設定</button>&nbsp;&nbsp;<button id="default" style="color:red;">回歸預設</button>
+ </div>
+ <script src="options.js"></script>
+</body>
+</html>
