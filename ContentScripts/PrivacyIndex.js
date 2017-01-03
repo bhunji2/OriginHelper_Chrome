@@ -1,13 +1,8 @@
 //==========================================================================================================
 var OriBaseURL	= 
 	"https://www.origin.com/twn/zh-tw/"
-var TokenURL	= 
-	"https://accounts.ea.com/connect/auth?client_id=ORIGIN_JS_SDK&response_type=token&redirect_uri=nucleus:rest&prompt=none"
-	//"https://accounts.ea.com/connect/auth?client_id=ORIGIN_SPA_ID&response_type=code&redirect_uri=nucleus:rest&prompt=none"
-var access_token = -1
 //==========================================================================================================
-$(document)	.ready(MainStart)
-$(window)	.load(SecStart)
+$(window).load(MainStart)
 //==========================================================================================================
 chrome.runtime.onMessage.addListener(function(request, sender, response) {
 	if(request.data == "privacyRun"){ 
@@ -16,36 +11,12 @@ chrome.runtime.onMessage.addListener(function(request, sender, response) {
 	}
 	//console.error([request , sender])
 });
-/*
-chrome.storage.sync.get({
-		"UsersData":-1
-	},
-	function(objs) {
-		var UsersData = objs["UsersData"]
-	}
-);
-*/
 //==========================================================================================================
 function MainStart(){
 	if(!$("#blockedUsers").length) return
 	SetCSS()
 	GetToken()
 	BoxSearchUserID()
-}
-/*
-function testallID(){
-	var IDs = ""
-	$("#blockedUsers dl").each(function(){
-		var playerNID	= $(this).find("dd.fright a:eq(0)")		.attr("id")
-		IDs = IDs + playerNID + ","
-	})
-	
-	OriginAPI("userIds",{url:IDs},function(data){
-		console.error(data.dataOut)
-	})
-}
-*/
-function SecStart(){
 	SetNewNvigate()
 }
 
@@ -57,7 +28,7 @@ function SetNewNvigate(){
 		.removeAttr("partial")
 		
 	$(cloneNvigate).find("div.navigate outer").attr("id","nav_privacy_tracker")
-	$(cloneNvigate).find("div.inner").html("黑名單追蹤")
+	$(cloneNvigate).find("div.inner").html("特殊名單追蹤")
 	$(cloneNvigate).appendTo("#NavLink")
 	
 	$("#nav_privacy_tracker_click").click(function(){
@@ -95,12 +66,18 @@ function GetToken(){
 }
 
 function BlockListRun(){
+	var BlockList = {}
 	$("#blockedUsers dl").each(function(){
 		var playerName 	= $(this).find("dd.fleft  span:eq(0)")	.html()
 		var playerNID	= $(this).find("dd.fright a:eq(0)")		.attr("id")
+		BlockList[playerNID] = null
 		//console.error([playerName,playerNID])
 		GetPlayerData(playerName,playerNID,PrintPlayerData)
-		//return false
+	})
+	
+	if(!BlockList.length) return
+	GetSync(BlockList,function(objs){
+		
 	})
 }
 
@@ -142,12 +119,10 @@ function PrintPlayerData(playerName,playerNID,Data){
 	})
 	//取得頭像
 	OriginAPI("avatar2",{url:userId , userId:userId},function(data){
-		var elementFright	= $("#OBL_dl_" + data.dataIn.userId).find("dd.fright")
 		var AvatarIMG		= $(data.dataOut).find("link").html()
-		$(elementFright).html( $(elementFright).html() + "<br>" +
-			"<img src='" + AvatarIMG + "' width='45' height='45'>"
+		$("<br><a target='_blank' href='" + AvatarIMG + "' id='OBL_imgA_" + userId + "'><img src='" + AvatarIMG + "' width='45' height='45'></a>").insertAfter(
+			$("#OBL_dl_" + data.dataIn.userId).find("dd.fright a:eq(0)")
 		)
-		
 	})
 }
 
@@ -168,36 +143,12 @@ function GetPlayerData(playerName,playerNID,callback){
 	});
 }
 
-function OriginAPI(type,dataIn,callback){
-	var randAPI = getRandomInt(1,4)
-	var apiURL	= ""
-	var BaseURL = "https://api" + randAPI + ".origin.com/"
-	if(type == "userIds")		apiURL = BaseURL + "atom/users?userIds=" + dataIn.url
-	if(type == "encodePair") 	apiURL = BaseURL + "gifting/idobfuscate/users/" + dataIn.url + "/encodePair"
-	if(type == "avatar1")		apiURL = BaseURL + "avatar/user/" + dataIn.url + "/avatars?size=1"
-	if(type == "avatar2")		apiURL = BaseURL + "avatar/user/" + dataIn.url + "/avatars?size=2"
-	
-	$.ajax({
-		url: apiURL,
-		//data: { signature: authHeader },
-		type: "GET",
-		beforeSend: function(xhr){
-			xhr.setRequestHeader('authToken', access_token)
-			xhr.setRequestHeader('authority', 'api' + randAPI + '.origin.com')
-		},
-		success: function(dataOut) { 
-			//console.error(dataOut)
-			callback({type:type , dataIn:dataIn , dataOut:dataOut})
-		}
-	});
-}
-
 
 function BoxSearchUserID(){
 	$("#privacy_reset_form div.block_user").html( $("#privacy_reset_form div.block_user").html() + 
 		'<div class="row">' +
 		"<dl>" +
-			"<dt>透過 UserID 查詢玩家名稱：</dt>" +
+			"<dt>透過 UserID 查詢玩家名稱：( 逗號或分行可查詢多個玩家 )</dt>" +
 			"<dd>" +
 				'<textarea id="OBL_blockSearch_Text">' +
 				'</textarea>' +
@@ -215,22 +166,22 @@ function BoxSearchUserID(){
 	$("#OBL_blockSearch_Text").css("width","310.996").css("height","19.504")
 	
 	$("#OBL_blockSearch_Button").click(function(){
+		$("#OBL_blockSearch_Text").val( 
+			$("#OBL_blockSearch_Text").val()
+			.replace(new RegExp("\n","gmi"),",") 
+			.replace(new RegExp(" ","gmi"),"") 
+		)
 		var UserID = $("#OBL_blockSearch_Text").val()
+		$("#OBL_blockSearch_Result").html("<br>")
 		GetPlayerData(UserID,UserID,function(playerName,playerNID,Data){
 			//console.error(Data)
-			var EAID = $(Data).find("EAID")
-			if($(EAID).length)
-					$("#OBL_blockSearch_Result").html("：<span>" + $(EAID).html() + "</span>")
-			else 	$("#OBL_blockSearch_Result").html("：<span>查無此人.</span>")
+			$(Data).find("user").each(function(){
+				$("#OBL_blockSearch_Result").append( "<br>" + $(this).find("userId").html() + "：" + $(this).find("EAID").html())
+			})
 		})
 	})
 }
 
-
-function getRandomInt(min, max) { return Math.floor(Math.random() * (max - min + 1)) + min; }
-//https://developer.chrome.com/extensions/storage#property-sync
-function GetSync(prefixData,callback){ chrome.storage.sync.get(prefixData,callback); }
-function SetSync(prefixData,callback){ chrome.storage.sync.set(prefixData,callback); }
 
 /*
 https://api2.origin.com/xsearch/users?userId=1000539918459&searchTerm=974256834&start=0

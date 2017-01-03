@@ -1,7 +1,7 @@
 ﻿{
 	"name": 				"Origin黑名單小助手",
 	"manifest_version": 	2,
-	"version":				"1.0.1",
+	"version":				"1.0.2",
 	"description": 			"Origin黑名單小助手",
 	"short_name":			"OriginBlackListHelper",
 	"homepage_url": 		"http://ccc",
@@ -57,7 +57,29 @@
 		[
 			 "Library/jquery.min.js"
 			,"Library/jquery-ui-1.11.4.custom/jquery-ui.min.js"
+			,"Library/Common.js"
 			,"ContentScripts/PrivacyIndex.js"
+		],
+		"css":
+		[
+			"Library/jquery-ui-1.11.4.custom/jquery-ui.css",
+			"Library/jquery-ui-1.11.4.custom/jquery-ui.structure.css",
+			"Library/jquery-ui-1.11.4.custom/jquery-ui.theme.css"
+		]
+	},
+	{
+		"all_frames": true,
+		"run_at"	:"document_start",
+		"matches"	: 
+		[ 
+			"*://www.origin.com/*/profile/user/*"
+		],
+		"js": 
+		[
+			 "Library/jquery.min.js"
+			,"Library/jquery-ui-1.11.4.custom/jquery-ui.min.js"
+			,"Library/Common.js"
+			,"ContentScripts/Profile.js"
 		],
 		"css":
 		[
