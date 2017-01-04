@@ -21,7 +21,7 @@ function SetSync(prefixData,callback){ chrome.storage.sync.set(prefixData,callba
 function getRandomInt(min, max) { return Math.floor(Math.random() * (max - min + 1)) + min; }
 
 OriginAPI("auth",null,function(data){ access_token = $.parseJSON(data.dataOut).access_token })
-function OriginAPI(type,dataIn,callback){
+function OriginAPI(type,dataIn,callback,ErrorCallback){
 	var randAPI = getRandomInt(1,4)
 	var apiURL	= ""
 	var BaseURL = "https://api" + randAPI + ".origin.com/"
@@ -44,6 +44,32 @@ function OriginAPI(type,dataIn,callback){
 		success: function(dataOut) { 
 			//console.error(dataOut)
 			callback({type:type , dataIn:dataIn , dataOut:dataOut})
+		},
+		error: function(event, jqxhr, settings, errorThrown ){
+			console.error([event, jqxhr, settings, errorThrown])
+			/*
+			ErrorCallback()
+			callback(playerName,playerNID,null)
+			*/
 		}
 	});
+}
+
+/*
+curl "https://api4.origin.com/atom/users/1000539918459/reportUser/1004345032558" -X OPTIONS -H "origin: https://www.origin.com" -H "access-control-request-method: POST" -H "dnt: 1" -H "accept-encoding: gzip, deflate, sdch, br" -H "accept-language: zh-TW,zh;q=0.8,en-US;q=0.6,en;q=0.4" -H "user-agent: Mozilla/5.0 (Windows NT 6.1; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/55.0.2883.87 Safari/537.36" -H "accept: *\/*" -H "referer: https://www.origin.com/twn/zh-tw/profile/user/y7JGX6e.9XCyquwb3KxroQ--/achievements" -H "authority: api4.origin.com" -H "access-control-request-headers: authtoken, x-origin-platform" --compressed
+*/
+/*
+curl "https://api4.origin.com/atom/users/1000539918459/reportUser/1004345032558" -H "origin: https://www.origin.com" -H "dnt: 1" -H "accept-encoding: gzip, deflate, br" -H "x-origin-platform: PCWIN" -H "accept-language: zh-TW,zh;q=0.8,en-US;q=0.6,en;q=0.4" -H "user-agent: Mozilla/5.0 (Windows NT 6.1; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/55.0.2883.87 Safari/537.36" -H "authtoken: QVQxOjEuMDozLjA6NjA6OUJETmlGZHB5QVdZVE5NQ0lWcjVSZDRoU2pQdzdDeUZ2UXU6MTg0NTk6bmlpN2w" -H "accept: *\/*" -H "referer: https://www.origin.com/twn/zh-tw/profile/user/y7JGX6e.9XCyquwb3KxroQ--/achievements" -H "authority: api4.origin.com" -H "content-type: text/plain;charset=UTF-8" --data-binary ^"^<reportUser^>^
+
+ ^<contentType^>In Game^</contentType^>^
+
+ ^<reportReason^>Cheating^</reportReason^>^
+
+^</reportUser^>^" --compressed
+
+*/
+
+function isNotUndefined(obj){
+	if(obj === undefined || obj == " " || obj == "") return false
+	return true
 }

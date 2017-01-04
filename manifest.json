@@ -1,10 +1,10 @@
 ﻿{
-	"name": 				"Origin黑名單小助手",
+	"name": 				"Origin黑名單小助手開發版",
 	"manifest_version": 	2,
-	"version":				"1.0.2",
+	"version":				"1.0.5",
 	"description": 			"Origin黑名單小助手",
 	"short_name":			"OriginBlackListHelper",
-	"homepage_url": 		"http://ccc",
+	"homepage_url": 		"https://goo.gl/oxnZST",
 	"icons": { "128": 	"Res/Origin128.png" },
 	"permissions": 
 	[
@@ -72,7 +72,7 @@
 		"run_at"	:"document_start",
 		"matches"	: 
 		[ 
-			"*://www.origin.com/*/profile/user/*"
+			"*://www.origin.com/*"
 		],
 		"js": 
 		[

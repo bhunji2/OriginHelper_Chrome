@@ -1,6 +1,6 @@
 //==========================================================================================================
-var OriBaseURL	= 
-	"https://www.origin.com/twn/zh-tw/"
+var OriBaseURL	= "https://www.origin.com/twn/zh-tw/"
+var PlayersJson = {}
 //==========================================================================================================
 $(window).load(MainStart)
 //==========================================================================================================
@@ -65,23 +65,59 @@ function GetToken(){
     });
 }
 
+function GetPlayerData(playerName,playerNID,callback){
+	$.ajax({
+		url: "https://api" + getRandomInt(1,4) + ".origin.com/atom/users?userIds=" + playerNID,
+		//data: { signature: authHeader },
+		type: "GET",
+		beforeSend: function(xhr){
+			xhr.setRequestHeader('authToken', access_token)
+			xhr.setRequestHeader('authority', 'api' + getRandomInt(1,4) + '.origin.com')
+		},
+		success: function(Data) { 
+			//alert('Success!' + authHeader); 
+			//console.error(data)
+			callback(playerName,playerNID,Data)
+		},
+		error: function(){
+			callback(playerName,playerNID,null)
+		}
+	});
+}
+
+var BlockListLen = 0
+var BlockProcess = 0
 function BlockListRun(){
-	var BlockList = {}
-	$("#blockedUsers dl").each(function(){
+	BlockListLen = 0
+	BlockProcess = 0
+	//var BlockList = {}
+	$("#blockedUsers dl").each(function(){ 
+		BlockListLen = BlockListLen + 1
 		var playerName 	= $(this).find("dd.fleft  span:eq(0)")	.html()
 		var playerNID	= $(this).find("dd.fright a:eq(0)")		.attr("id")
-		BlockList[playerNID] = null
+		//BlockList[playerNID] = {  }
 		//console.error([playerName,playerNID])
 		GetPlayerData(playerName,playerNID,PrintPlayerData)
 	})
-	
+	/*
 	if(!BlockList.length) return
 	GetSync(BlockList,function(objs){
-		
+		var SaveObjs = {}
+		var keys = Object.keys(objs);
+		for(var i = 0 ; i < keys.length ; i++){
+			if(objs[keys[i]] == null){
+				SaveObjs[]
+				
+			}
+		}
 	})
+	*/
 }
 
 function PrintPlayerData(playerName,playerNID,Data){
+	BlockProcess = BlockProcess + 1
+	if(BlockProcess >= BlockListLen) setTimeout(SyncCheckPlayers, 1000);
+	if(Data == null) return
 	//console.error(Data)
 	var EAID		= $(Data).find("EAID")		.html()
 	var userId 		= $(Data).find("userId")	.html()
@@ -92,6 +128,13 @@ function PrintPlayerData(playerName,playerNID,Data){
 	var elementDL	= $(RemoveHref).parent().parent()
 	var elementDD 	= $(elementDL).find("dd.fleft:eq(0)")
 	var elementSpan = $(elementDD).find("span:eq(0)")
+	
+	PlayersJson[userId] = {}
+	if(isNotUndefined(EAID)) 		PlayersJson[userId].EAID 		= EAID
+	if(isNotUndefined(userId)) 		PlayersJson[userId].userId 		= userId
+	if(isNotUndefined(personaId)) 	PlayersJson[userId].personaId 	= personaId
+	if(isNotUndefined(firstName)) 	PlayersJson[userId].firstName 	= firstName
+	if(isNotUndefined(lastName)) 	PlayersJson[userId].lastName 	= lastName
 	
 	//設定移除按鈕的顏色
 	$(RemoveHref).css("color","green")
@@ -126,29 +169,28 @@ function PrintPlayerData(playerName,playerNID,Data){
 	})
 }
 
-function GetPlayerData(playerName,playerNID,callback){
-	$.ajax({
-		url: "https://api" + getRandomInt(1,4) + ".origin.com/atom/users?userIds=" + playerNID,
-		//data: { signature: authHeader },
-		type: "GET",
-		beforeSend: function(xhr){
-			xhr.setRequestHeader('authToken', access_token)
-			xhr.setRequestHeader('authority', 'api' + getRandomInt(1,4) + '.origin.com')
-		},
-		success: function(Data) { 
-			//alert('Success!' + authHeader); 
-			//console.error(data)
-			callback(playerName,playerNID,Data)
+function SyncCheckPlayers(){
+	console.info("SyncCheckPlayers")
+	var SaveObjs= {}
+	var NewObj	= {}
+	var Orikeys = Object.keys(PlayersJson);
+	for(var i = 0 ; i < Orikeys.length ; i++){ NewObj[Orikeys[i]] = null }
+	GetSync(NewObj,function(objs){
+		var keys = Object.keys(objs);
+		for(var i = 0 ; i < keys.length ; i++){
+			if(objs[keys[i]] == null){
+				SaveObjs[keys[i]] = PlayersJson[keys[i]]
+				
+			}
 		}
-	});
+	})
 }
 
-
 function BoxSearchUserID(){
-	$("#privacy_reset_form div.block_user").html( $("#privacy_reset_form div.block_user").html() + 
+	$("#privacy_reset_form div.block_user").append(
 		'<div class="row">' +
 		"<dl>" +
-			"<dt>透過 UserID 查詢玩家名稱：( 逗號或分行可查詢多個玩家 )</dt>" +
+			"<dt>透過 UserID 查詢玩家名稱：<br>( 逗號或分行可查詢多個玩家，最多一次五個 )</dt>" +
 			"<dd>" +
 				'<textarea id="OBL_blockSearch_Text">' +
 				'</textarea>' +
