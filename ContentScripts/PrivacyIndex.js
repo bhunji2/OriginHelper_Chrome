@@ -13,15 +13,15 @@ chrome.runtime.onMessage.addListener(function(request, sender, response) {
 });
 //==========================================================================================================
 function MainStart(){
+	SetNewNvigate()
 	if(!$("#blockedUsers").length) return
 	SetCSS()
 	GetToken()
 	BoxSearchUserID()
-	SetNewNvigate()
 }
 
 function SetNewNvigate(){
-	var cloneNvigate = $("#NavLink dd[class!='select']:eq(0)").clone()
+	var cloneNvigate = $("#NavLink dd[class!='select ']:eq(0)").clone()
 	$(cloneNvigate).find("a")
 		.attr("id","nav_privacy_tracker_click")
 		.attr("href","javascript:void()")
@@ -92,13 +92,27 @@ function BlockListRun(){
 	BlockProcess = 0
 	//var BlockList = {}
 	$("#blockedUsers dl").each(function(){ 
-		BlockListLen = BlockListLen + 1
-		var playerName 	= $(this).find("dd.fleft  span:eq(0)")	.html()
-		var playerNID	= $(this).find("dd.fright a:eq(0)")		.attr("id")
+		BlockListLen 	= BlockListLen + 1
+		var fleftSpan 	= $(this).find("dd.fleft  span:eq(0)")
+		var frightA		= $(this).find("dd.fright a:eq(0)")
+		var playerName 	= $(fleftSpan)	.html()
+		var playerNID	= $(frightA)	.attr("id")
 		//BlockList[playerNID] = {  }
 		//console.error([playerName,playerNID])
 		GetPlayerData(playerName,playerNID,PrintPlayerData)
+		
+		$("<a pid='" + playerNID + "' class='OBL_name_edit' href='javascript:void()'>"+
+			"<img src='" + GetURL("Res/Edit.png") + "' width='24' height='24'>"+
+		"</a>nbsp;nbsp;").insertBefore($(fleftSpan))
 	})
+	
+	$(".OBL_name_edit").click(function(){
+		var playerNID = $(this).attr("pid")
+		PlayerNameEditor(playerNID)
+	})
+	
+	//var span = $("#privacy_reset_form div.blocklist dl > dd.fleft > span")
+	
 	/*
 	if(!BlockList.length) return
 	GetSync(BlockList,function(objs){
@@ -112,6 +126,11 @@ function BlockListRun(){
 		}
 	})
 	*/
+}
+
+function PlayerNameEditor(playerNID){
+	
+	
 }
 
 function PrintPlayerData(playerName,playerNID,Data){
@@ -130,11 +149,11 @@ function PrintPlayerData(playerName,playerNID,Data){
 	var elementSpan = $(elementDD).find("span:eq(0)")
 	
 	PlayersJson[userId] = {}
-	if(isNotUndefined(EAID)) 		PlayersJson[userId].EAID 		= EAID
+	if(isNotUndefined(EAID)) 		PlayersJson[userId].EAID 		= [EAID]
 	if(isNotUndefined(userId)) 		PlayersJson[userId].userId 		= userId
 	if(isNotUndefined(personaId)) 	PlayersJson[userId].personaId 	= personaId
-	if(isNotUndefined(firstName)) 	PlayersJson[userId].firstName 	= firstName
-	if(isNotUndefined(lastName)) 	PlayersJson[userId].lastName 	= lastName
+	if(isNotUndefined(firstName)) 	PlayersJson[userId].firstName 	= [firstName]
+	if(isNotUndefined(lastName)) 	PlayersJson[userId].lastName 	= [lastName]
 	
 	//設定移除按鈕的顏色
 	$(RemoveHref).css("color","green")
@@ -169,8 +188,20 @@ function PrintPlayerData(playerName,playerNID,Data){
 	})
 }
 
+/*
+chrome.storage.sync.clear(function(){
+	//return
+	SetSync({"1000085176298":{ "EAID":["ccc"] }})
+	GetSync(null,function(objs){
+		console.info(objs)
+	})
+})
+*/
+//http://stackoverflow.com/questions/286141/remove-blank-attributes-from-an-object-in-javascript
+//http://stackoverflow.com/questions/25421233/javascript-removing-undefined-fields-from-an-object
+
 function SyncCheckPlayers(){
-	console.info("SyncCheckPlayers")
+	//console.info("SyncCheckPlayers")
 	var SaveObjs= {}
 	var NewObj	= {}
 	var Orikeys = Object.keys(PlayersJson);
@@ -180,11 +211,77 @@ function SyncCheckPlayers(){
 		for(var i = 0 ; i < keys.length ; i++){
 			if(objs[keys[i]] == null){
 				SaveObjs[keys[i]] = PlayersJson[keys[i]]
-				
+			}
+			else {
+				var EAID 		= MergeCheckData(objs[keys[i]].EAID		,PlayersJson[keys[i]].EAID)
+				var firstName	= MergeCheckData(objs[keys[i]].firstName,PlayersJson[keys[i]].firstName)
+				var lastName	= MergeCheckData(objs[keys[i]].lastName,PlayersJson[keys[i]].lastName)
+				if(EAID[1] || firstName[1] || lastName[1]){
+					SaveObjs[keys[i]] = PlayersJson[keys[i]]
+					if(EAID[1])		SaveObjs[keys[i]].EAID 		= EAID[0]
+					if(firstName[1])SaveObjs[keys[i]].firstName = firstName[0]
+					if(lastName[1])	SaveObjs[keys[i]].lastName 	= lastName[0]
+					//console.info(SaveObjs)
+					//console.info({EAID:EAID , firstName:firstName , lastName:lastName})
+				}
+				/*
+				var PrintPlayer = {EAID:}
+				if(EAID[2] || firstName[2] || lastName[2]) SyncPrintPlayer(objs[keys[i]].userId,SaveObjs[keys[i]])
+				*/
+				if(EAID[0].length > 1)
+					$("#OBL_name_" + PlayersJson[keys[i]].userId).find("a").html(EAID[0].toString())
 			}
 		}
+		//console.info("cnt - len:" + cnt)
+		console.info("SaveObjs - len:" + Object.keys(SaveObjs).length)
+		SetSync(SaveObjs,function(){
+			/*
+			GetSync(null,function(objs){
+				console.info(objs)
+			})
+			*/
+		})
+		
+		//SaveObjs = objs
+		//SyncPrintPlayers(SaveObjs)
 	})
 }
+
+function SyncPrintPlayer(userId,obj){
+	$("#OBL_name_" + userId).find("a").html(obj.EAID.toString())
+	
+}
+
+function SyncPrintPlayers(objs){
+	//console.info(objs)
+	/*
+	$(obj).each(function(key,val){
+		console.info(val)
+	})
+	*/
+}
+
+function MergeCheckData(dat1,dat2){
+	if(dat1 === undefined && dat2 === undefined) return [dat1,false]
+	
+	var output = dat2
+	var status = false
+	var status2= false
+	if(dat2 === undefined) output = dat1
+	if(Array.isArray(dat1) && Array.isArray(dat2)){
+		output = {}
+		var dat = dat1.concat(dat2)
+		for(var i = 0; i < dat.length;i++){
+			output[dat[i]] = output[dat[i]] === undefined ? 0:output[dat[i]] + 1
+			if(output[dat[i]] > 1) status = true
+		}
+		output = Object.keys(output)
+	}
+	else if(typeof(dat1) != typeof(dat2)) status = true
+	if(dat1 !== dat2) status2 = true
+	return [output,status,status2]
+}
+
 
 function BoxSearchUserID(){
 	$("#privacy_reset_form div.block_user").append(

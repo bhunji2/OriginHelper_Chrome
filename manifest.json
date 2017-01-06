@@ -87,6 +87,27 @@
 			"Library/jquery-ui-1.11.4.custom/jquery-ui.structure.css",
 			"Library/jquery-ui-1.11.4.custom/jquery-ui.theme.css"
 		]
+	},
+	{
+		"all_frames": true,
+		"run_at"	:"document_start",
+		"matches"	: 
+		[ 
+			"*://www.battlefield.com/*/companion/career/*"
+		],
+		"js": 
+		[
+			 "Library/jquery.min.js"
+			,"Library/jquery-ui-1.11.4.custom/jquery-ui.min.js"
+			,"Library/Common.js"
+			,"ContentScripts/Career.js"
+		],
+		"css":
+		[
+			"Library/jquery-ui-1.11.4.custom/jquery-ui.css",
+			"Library/jquery-ui-1.11.4.custom/jquery-ui.structure.css",
+			"Library/jquery-ui-1.11.4.custom/jquery-ui.theme.css"
+		]
 	}
 	],
 	"incognito"					: "spanning",

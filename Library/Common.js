@@ -18,10 +18,21 @@ function GetURL(file){
 //https://developer.chrome.com/extensions/storage#property-sync
 function GetSync(prefixData,callback){ chrome.storage.sync.get(prefixData,callback); }
 function SetSync(prefixData,callback){ chrome.storage.sync.set(prefixData,callback); }
+function CalSync(prefixData,callback){ chrome.storage.sync.getBytesInUse(prefixData,callback); }
 function getRandomInt(min, max) { return Math.floor(Math.random() * (max - min + 1)) + min; }
 
-OriginAPI("auth",null,function(data){ access_token = $.parseJSON(data.dataOut).access_token })
+//OriginAPI("auth",null,function(data){ access_token = $.parseJSON(data.dataOut).access_token })
 function OriginAPI(type,dataIn,callback,ErrorCallback){
+	if(access_token != -1){
+		OriginAPI2(type,dataIn,callback,ErrorCallback)
+		return
+	}
+	OriginAPI2("auth",null,function(data){ 
+		access_token = $.parseJSON(data.dataOut).access_token 
+		OriginAPI2(type,dataIn,callback,ErrorCallback)
+	})
+}
+function OriginAPI2(type,dataIn,callback,ErrorCallback){
 	var randAPI = getRandomInt(1,4)
 	var apiURL	= ""
 	var BaseURL = "https://api" + randAPI + ".origin.com/"

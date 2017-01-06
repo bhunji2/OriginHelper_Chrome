@@ -53,7 +53,7 @@ function PrintPlayerData(data){
 }
 
 function AvatarIMG(){
-	console.info("AvatarIMG")
+	//console.info("AvatarIMG")
 	var elem_AvatarIMG = $("#content img.otkavatar-img[draggable='false']")
 	$(elem_AvatarIMG).css("border-radius","0%")
 }
